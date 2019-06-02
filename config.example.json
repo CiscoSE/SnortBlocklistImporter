@@ -1,0 +1,10 @@
+{
+    "TALOS_BLACKLIST_URL": "http://www.talosintel.com/feeds/ip-filter.blf",
+    "SW_ADDRESS": "",
+    "SW_USERNAME": "",
+    "SW_PASSWORD": "",
+    "SW_TENANT_ID": "",
+    "SW_TAG_ID": "",
+    "SW_CREATE_CSE": true,
+    "SW_CSE_ID": ""
+}

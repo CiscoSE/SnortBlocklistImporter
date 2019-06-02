@@ -1,0 +1,7 @@
+__pycache__
+
+blacklist.json
+config.json
+
+venv/
+.vscode/
