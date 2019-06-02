@@ -14,7 +14,6 @@
 #
 ############################################################
 
-# import datetime
 import getpass
 import json
 import os
