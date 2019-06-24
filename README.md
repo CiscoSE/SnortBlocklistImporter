@@ -1,5 +1,7 @@
 # Talos Blacklist Importer
 
+[![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/CiscoSE/TalosBlacklistImporter)
+
 ## Summary
 
 This is a script to import Cisco Talos's IP Blacklist into a Tag (Host Group) within Stealthwatch.  This will also optionally create a Custom Security Event (CSE) to alert on traffic to the blacklisted IPs.
