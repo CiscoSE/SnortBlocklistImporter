@@ -8,9 +8,11 @@ This is a script to import Cisco Talos's IP Blacklist into a Tag (Host Group) wi
 
 ## Requirements
 
-1. Must have Python 3.x installed.
-2. Must be running Stealthwatch 7.0 or higher.
-3. Must have API access to Stealthwatch.
+1. Python 3.x
+2. Stealthwatch 7.0 or higher
+    - Updates files and documentation can be found in the Network Visibility and Segementation product category on [software.cisco.com](https://software.cisco.com/download/home/286307082)
+3. Stealthwatch user credentials with the "Master Admin" role assigned.
+    - User roles are configured in the Stealthwatch web interface.  Simply navigate to *Global Settings -> User Management*.
 
 ## Configuration File
 
