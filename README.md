@@ -4,27 +4,54 @@
 
 ## Summary
 
-This is a script to import Cisco Talos's IP Blacklist into a Tag (Host Group) within Stealthwatch.  This will also optionally create a Custom Security Event (CSE) to alert on traffic to the blacklisted IPs.
+This is a script to import Cisco Talos's IP Blacklist into a Tag (Host Group) within Stealthwatch. This will also optionally create a Custom Security Event (CSE) to alert on traffic to the blacklisted IPs.
 
 ## Requirements
 
 1. Must have Python 3.x installed.
-2. Install the required packages from the *requirements.txt* file.
-
-    * You'll probably want to set up a virtual environment: [Python 'venv' Tutorial](https://docs.python.org/3/tutorial/venv.html)
-
-    * ```pip install -r requirements.txt```
+2. Must be running Stealthwatch 7.0 or higher.
 3. Must have API access to Stealthwatch.
+
+## Configuration File
+
+The ***config.json*** file contains the following variables:
+
+- TALOS_BLACKLIST_URL: The URL for the Talos IP Blacklist. (String)
+- SW_ADDRESS: The IP or FQDN of the Stealthwatch SMC. (String)
+- SW_USERNAME: The Username to be used to authenticate to Stealthwatch. (String)
+- SW_PASSWORD: The Password to be used to authenticate to Stealthwatch. (String)
+- SW_TENANT_ID: The Stealthwatch Tenant (Domain) ID to be used. (Integer)
+- SW_TAG_ID: The Tag (Host Group) ID for the blacklist IPs. (Integer)
+- SW_CREATE_CSE: Whether a Custom Security Event should be created. (Boolean)
+- SW_CSE_ID: The ID of the Custom Security Event. (Integer)
 
 ## How To Run
 
-1. Copy the *config.example.json* to *config.json*.
+1. Prior to running the script for the first time, copy the ***config.example.json*** to ***config.json***.
     * ```cp config.example.json config.json```
-    * **Optional:** you can manually enter configuration data in the *config.json* file. The script will assume it needs to create a Tag (Host Group) and Custom Security Event, unless one is populated in the *config.json*.
+    * **OPTIONAL:** You can manually enter configuration data in the ***config.json*** file if desired. By default, the script will assume it needs to create a Tag (Host Group) and Custom Security Event, unless IDs for each are populated in the ***config.json***.
+2. Install the required packages from the ***requirements.txt*** file.
+    * ```pip install -r requirements.txt```
+    * You'll probably want to set up a virtual environment: [Python 'venv' Tutorial](https://docs.python.org/3/tutorial/venv.html)
+    * Activate the Python virtual environment, if you created one.
 3. Run the script with ```python TalosBlacklistImporter.py```
 
-> If you didn't manually enter configuration data, you'll get prompted for the Stealthwatch IP/FQDN, Username, and Password. The script will store these credentials in the *config.json* file for future use. **This means you probably want to make the *config.json* file read-only. You probably will also want to create unique credentials for scripting/API purposes.**
+> If you didn't manually enter configuration data, you'll get prompted for the Stealthwatch IP/FQDN, Username, and Password. The script will store these credentials in the ***config.json*** file for future use. **This means you probably want to make the ***config.json*** file read-only. You probably will also want to create unique credentials for scripting/API purposes.**
 
-The script will automatically try to determine your Stealthwatch Tenant ID, and store that in the *config.json* file as well.
+The script will automatically try to determine your Stealthwatch Tenant ID, and store that in the ***config.json*** file as well.
 
-The script will cache downloaded data from Talos for one hour to prevent creating too many requests. (You'll get greylisted if you make too many requests for the URL)
+By default, the script will cache downloaded blacklist data from Talos for one hour to prevent creating too many requests. (You'll get greylisted if you make too many requests for the URL)
+
+## Docker Container
+
+This script is Docker friendly, and can be deployed as a container.
+
+To build the container, run the script once to populate the ***config.json*** file, or manually populate the configuration variables.
+
+Once the ***config.json*** file is populated, run the following command to build the container:
+
+- ```docker build -t talos-blacklist-importer .```
+
+You can then run the container as a daemon with the following command:
+
+- ```docker run -d -name talos-blacklist-importer talos-blacklist-importer```

@@ -9,11 +9,12 @@
 # ----------------
 # Author: Alan Nix
 # Property of: Cisco Systems
-# Version: 1.0
-# Release Date: 06/01/2019
+# Version: 1.1
+# Release Date: 06/26/2019
 #
 ############################################################
 
+import argparse
 import getpass
 import json
 import os
@@ -33,6 +34,9 @@ API_SESSION = requests.Session()
 # Config Paramters
 CONFIG_FILE = "config.json"
 CONFIG_DATA = {}
+
+# Set a wait interval (in seconds) - don't make this too short or you'll get greylisted
+INTERVAL = 3600
 
 # Talos Blacklist Cache
 TALOS_DATA_FILE = "blacklist.json"
@@ -59,7 +63,7 @@ def load_config():
         return CONFIG_DATA
 
     else:
-        print("The configuration file \"{}\" was not found.".format(CONFIG_FILE))
+        print("The configuration file \"{}\" was not found. Please copy the 'config.example.json' file to 'config.json'".format(CONFIG_FILE))
         exit()
 
 
@@ -71,6 +75,39 @@ def save_config():
 
 
 def get_blacklist():
+    """Check to see if we have a cached blacklist, fetch a new one if needed, then return the results"""
+
+    # Check to see if we have cached data
+    if os.path.isfile(TALOS_DATA_FILE):
+        print("Cached blacklist found.")
+
+        # Get the delta of the current time and the file modified time
+        time_delta = time.time() - os.path.getmtime(TALOS_DATA_FILE)
+
+        # If the file is less than an hour old, use it
+        if time_delta < INTERVAL:
+            print("Cached blacklist was less than {} seconds old.  Using it.".format(INTERVAL))
+
+            # Open the CONFIG_FILE and load it
+            with open(TALOS_DATA_FILE, 'r') as blacklist_file:
+                ip_list = json.load(blacklist_file)
+
+        else:
+            print("Cached blacklist was too old, getting a new one.")
+
+            # Get a new blacklist
+            ip_list = get_new_blacklist()
+
+    else:
+        print("No cached blacklist was found, getting a new one.")
+
+        # Get a new blacklist
+        ip_list = get_new_blacklist()
+
+    return ip_list
+
+
+def get_new_blacklist():
     """Retrieve the Talos Blacklist and return a list of IPs"""
 
     try:
@@ -369,7 +406,7 @@ def enable_cse():
 
 
 def selection_list(item_name, item_name_key, item_dict):
-    """This is a function to allow users to select an item from a dict."""
+    """This is a function to allow users to select an item from a dictionary"""
 
     print("\nPlease select one of the following {}:\n".format(item_name))
 
@@ -393,28 +430,13 @@ def selection_list(item_name, item_name_key, item_dict):
     return item_dict[selected_item]
 
 
-####################
-# !!! DO WORK !!!  #
-####################
+def main():
+    """This is a function to run the main logic of the TalosBlacklistImporter"""
 
+    # Get the IPs in the Talos Blacklist
+    ip_list = get_blacklist()
 
-if __name__ == "__main__":
-
-    # Load configuration data from file
-    CONFIG_DATA = load_config()
-
-    # If not hard coded, get the SMC Address, Username and Password
-    if not CONFIG_DATA["SW_ADDRESS"]:
-        CONFIG_DATA["SW_ADDRESS"] = input("Stealthwatch IP/FQDN Address: ")
-        save_config()
-    if not CONFIG_DATA["SW_USERNAME"]:
-        CONFIG_DATA["SW_USERNAME"] = input("Stealthwatch Username: ")
-        save_config()
-    if not CONFIG_DATA["SW_PASSWORD"]:
-        CONFIG_DATA["SW_PASSWORD"] = getpass.getpass("Stealthwatch Password: ")
-        save_config()
-
-    # Authenticate to Stealthwatch API
+    # Authenticate to the Stealthwatch API
     get_access_token()
 
     # If a Domain ID wasn't specified, then get one
@@ -425,36 +447,6 @@ if __name__ == "__main__":
 
         # Save the Tenant/Domain ID
         save_config()
-
-    # Create a list to hold IPs
-    ip_list = []
-
-    # Check to see if we have cached data
-    if os.path.isfile(TALOS_DATA_FILE):
-        print("Cached blacklist found.")
-
-        # Get the delta of the current time and the file modified time
-        time_delta = time.time() - os.path.getmtime(TALOS_DATA_FILE)
-
-        # If the file is less than an hour old, use it
-        if time_delta < 3600:
-            print("Cached blacklist was less than an hour old.  Using it.")
-
-            # Open the CONFIG_FILE and load it
-            with open(TALOS_DATA_FILE, 'r') as blacklist_file:
-                ip_list = json.load(blacklist_file)
-
-        else:
-            print("Cached blacklist was too old, getting a new one.")
-
-            # Get a new blacklist
-            ip_list = get_blacklist()
-
-    else:
-        print("No cached blacklist was found, getting a new one.")
-
-        # Get a new blacklist
-        ip_list = get_blacklist()
 
     # Send the request to Stealthwatch to Create or Update the Tag (Host Group)
     CONFIG_DATA["SW_TAG_ID"] = create_update_tag(ip_list)
@@ -472,3 +464,38 @@ if __name__ == "__main__":
 
             # Enable the Custom Security Event
             enable_cse()
+
+
+####################
+# !!! DO WORK !!!  #
+####################
+
+
+if __name__ == "__main__":
+
+    # Set up an argument parser
+    parser = argparse.ArgumentParser(description="A script to import the Talos Blacklist into Stealthwatch")
+    parser.add_argument("-d", "--daemon", help="Run the script as a daemon", action="store_true")
+    args = parser.parse_args()
+
+    # Load configuration data from file
+    CONFIG_DATA = load_config()
+
+    # If not hard coded, get the SMC Address, Username and Password
+    if not CONFIG_DATA["SW_ADDRESS"]:
+        CONFIG_DATA["SW_ADDRESS"] = input("Stealthwatch IP/FQDN Address: ")
+        save_config()
+    if not CONFIG_DATA["SW_USERNAME"]:
+        CONFIG_DATA["SW_USERNAME"] = input("Stealthwatch Username: ")
+        save_config()
+    if not CONFIG_DATA["SW_PASSWORD"]:
+        CONFIG_DATA["SW_PASSWORD"] = getpass.getpass("Stealthwatch Password: ")
+        save_config()
+
+    if args.daemon:
+        while True:
+            main()
+            print("Waiting {} seconds...".format(INTERVAL))
+            time.sleep(INTERVAL)
+    else:
+        main()
