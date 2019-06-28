@@ -6,6 +6,8 @@
 
 This is a script to import Cisco Talos's IP Blacklist into a Tag (Host Group) within Stealthwatch. This will also optionally create a Custom Security Event (CSE) to alert on traffic to the blacklisted IPs.
 
+You can find more information on Stealthwatch's APIs on [Cisco DevNet](https://developer.cisco.com/docs/stealthwatch/).
+
 ## Requirements
 
 1. Python 3.x
