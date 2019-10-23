@@ -5,7 +5,7 @@
 # ABOUT THIS SCRIPT #
 #####################
 #
-# TalosBlacklistImporter.py
+# talos_blacklist_importer.py
 # ----------------
 # Author: Alan Nix
 # Property of: Cisco Systems
