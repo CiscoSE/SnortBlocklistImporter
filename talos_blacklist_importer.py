@@ -18,6 +18,7 @@ import argparse
 import getpass
 import json
 import os
+import shutil
 import time
 
 import requests
@@ -46,7 +47,7 @@ TALOS_DATA_FILE = "blacklist.json"
 ####################
 
 
-def load_config():
+def load_config(retry=False):
     """Load configuration data from file"""
 
     print("Loading configuration data...")
@@ -63,8 +64,20 @@ def load_config():
         return CONFIG_DATA
 
     else:
-        print("The configuration file \"{}\" was not found. Please copy the 'config.example.json' file to 'config.json'".format(CONFIG_FILE))
-        exit()
+        # Check to see if this is the initial load_config attempt
+        if not retry:
+
+            # Print that we couldn't find the config file, and attempt to copy the example
+            print("The configuration file was not found. Copying 'config.example.json' file to '{}', and retrying...".format(CONFIG_FILE))
+            shutil.copyfile('config.example.json', CONFIG_FILE)
+
+            # Try to reload the config
+            return load_config(retry=True)
+        else:
+
+            # Exit gracefully if we cannot load the config
+            print("Unable to automatically create config file. Please copy 'config.example.json' to '{}' manually.".format(CONFIG_FILE))
+            exit()
 
 
 def save_config():
