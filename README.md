@@ -1,19 +1,19 @@
-# Stealthwatch: Talos Blacklist Importer
+# Stealthwatch Enterprise: Talos Blacklist Importer
 
 [![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/CiscoSE/TalosBlacklistImporter)
 
 ## Summary
 
-This is a script to import Cisco Talos's IP Blacklist into a Tag (Host Group) within Stealthwatch. This will also optionally create a Custom Security Event (CSE) to alert on traffic to the blacklisted IPs.
+This is a script to import Cisco Talos's IP Blacklist into a Tag (Host Group) within Stealthwatch Enterprise. This will also optionally create a Custom Security Event (CSE) to alert on traffic to the blacklisted IPs.
 
 You can find more information on Stealthwatch's APIs on [Cisco DevNet](https://developer.cisco.com/docs/stealthwatch/).
 
 ## Requirements
 
 1. Python 3.x
-2. Stealthwatch 7.0 or higher
+2. Stealthwatch Enterprise 7.0 or higher
     - Updates files and documentation can be found in the Network Visibility and Segementation product category on [software.cisco.com](https://software.cisco.com/download/home/286307082)
-3. Stealthwatch user credentials with the "Master Admin" role assigned.
+3. Stealthwatch Enterprise user credentials with the "Master Admin" role assigned.
     - User roles are configured in the Stealthwatch web interface.  Simply navigate to *Global Settings -> User Management*.
 
 ## Configuration File
