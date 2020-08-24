@@ -445,7 +445,7 @@ def selection_list(item_name, item_name_key, item_dict):
 
 
 def main():
-    """This is a function to run the main logic of the SnortBlock_listImporter"""
+    """This is a function to run the main logic of the SnortBlocklistImporter"""
 
     # Get the IPs in the Snort Block list
     ip_list = get_block_list()

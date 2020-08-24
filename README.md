@@ -38,7 +38,7 @@ The ***config.json*** file contains the following variables:
     * ```pip install -r requirements.txt```
     * You'll probably want to set up a virtual environment: [Python 'venv' Tutorial](https://docs.python.org/3/tutorial/venv.html)
     * Activate the Python virtual environment, if you created one.
-3. Run the script with ```python talos_block list_importer.py```
+3. Run the script with ```python snort_blocklist_importer.py```
 
 > If you didn't manually enter configuration data, you'll get prompted for the Stealthwatch IP/FQDN, Username, and Password. The script will store these credentials in the ***config.json*** file for future use. **This means you probably want to make the ***config.json*** file read-only. You probably will also want to create unique credentials for scripting/API purposes.**
 
@@ -54,8 +54,8 @@ To build the container, run the script once to populate the ***config.json*** fi
 
 Once the ***config.json*** file is populated, run the following command to build the container:
 
-- ```docker build -t snort-block_list-importer .```
+- ```docker build -t snort-block-list-importer .```
 
 You can then run the container as a daemon with the following command:
 
-- ```docker run -d --name snort-block_list-importer snort-block_list-importer```
+- ```docker run -d --name snort-block-list-importer snort-block-list-importer```
