@@ -5,11 +5,12 @@
 # ABOUT THIS SCRIPT #
 #####################
 #
-# talos_blacklist_importer.py
+# snort_block_list_importer.py
 # ----------------
 # Author: Alan Nix
+# Contibutions by: Joel Esler
 # Property of: Cisco Systems
-# Version: 1.1
+# Version: 1.2
 # Release Date: 06/26/2019
 #
 ############################################################
@@ -39,8 +40,8 @@ CONFIG_DATA = {}
 # Set a wait interval (in seconds) - don't make this too short or you'll get greylisted
 INTERVAL = 3600
 
-# Talos Blacklist Cache
-TALOS_DATA_FILE = "blacklist.json"
+# Snort Block list Cache
+SNORT_DATA_FILE = "block_list.json"
 
 ####################
 #    FUNCTIONS     #
@@ -87,45 +88,45 @@ def save_config():
         json.dump(CONFIG_DATA, output_file, indent=4)
 
 
-def get_blacklist():
-    """Check to see if we have a cached blacklist, fetch a new one if needed, then return the results"""
+def get_block_list():
+    """Check to see if we have a cached block_list, fetch a new one if needed, then return the results"""
 
     # Check to see if we have cached data
-    if os.path.isfile(TALOS_DATA_FILE):
-        print("Cached blacklist found.")
+    if os.path.isfile(SNORT_DATA_FILE):
+        print("Cached block_list found.")
 
         # Get the delta of the current time and the file modified time
-        time_delta = time.time() - os.path.getmtime(TALOS_DATA_FILE)
+        time_delta = time.time() - os.path.getmtime(SNORT_DATA_FILE)
 
         # If the file is less than an hour old, use it
         if time_delta < INTERVAL:
-            print("Cached blacklist was less than {} seconds old.  Using it.".format(INTERVAL))
+            print("Cached block_list was less than {} seconds old.  Using it.".format(INTERVAL))
 
             # Open the CONFIG_FILE and load it
-            with open(TALOS_DATA_FILE, 'r') as blacklist_file:
-                ip_list = json.load(blacklist_file)
+            with open(SNORT_DATA_FILE, 'r') as block_list_file:
+                ip_list = json.load(block_list_file)
 
         else:
-            print("Cached blacklist was too old, getting a new one.")
+            print("Cached block_list was too old, getting a new one.")
 
-            # Get a new blacklist
-            ip_list = get_new_blacklist()
+            # Get a new block_list
+            ip_list = get_new_block_list()
 
     else:
-        print("No cached blacklist was found, getting a new one.")
+        print("No cached block_list was found, getting a new one.")
 
-        # Get a new blacklist
-        ip_list = get_new_blacklist()
+        # Get a new block_list
+        ip_list = get_new_block_list()
 
     return ip_list
 
 
-def get_new_blacklist():
-    """Retrieve the Talos Blacklist and return a list of IPs"""
+def get_new_block_list():
+    """Retrieve the Snort Block list and return a list of IPs"""
 
     try:
-        # Get the IP Blacklist data from Talos
-        response = requests.get(CONFIG_DATA["TALOS_BLACKLIST_URL"], stream=True)
+        # Get the IP Block list data from Snort.org 
+        response = requests.get(CONFIG_DATA["SNORT_BLOCK_LIST_URL"], stream=True)
 
         # If the request was successful
         if response.status_code >= 200 or response.status_code < 300:
@@ -141,28 +142,28 @@ def get_new_blacklist():
 
                 # Make sure we haven't exceeded our requests per minute maximum
                 if "exceeded" in line:
-                    print("It looks like we've exceeded the request maximum for the blacklist. Terminating.")
+                    print("It looks like we've exceeded the request maximum for the block_list. Terminating.")
                     exit()
 
                 if "DOCTYPE" in line:
-                    print("Got garbage back from the Talos blacklist. Terminating.")
+                    print("Got garbage back from the Snort.org block_list. Terminating.")
                     exit()
 
                 if line:
                     ip_list.append(line)
 
-            # Cache the data from Talos
-            with open(TALOS_DATA_FILE, 'w') as output_file:
+            # Cache the data from Snort.org 
+            with open(SNORT_DATA_FILE, 'w') as output_file:
                 json.dump(ip_list, output_file, indent=4)
 
             return ip_list
 
         else:
-            print("Failed to get data from Talos. Terminating.")
+            print("Failed to get data from Snort.org. Terminating.")
             exit()
 
     except Exception as err:
-        print("Unable to get the Talos Blacklist - Error: {}".format(err))
+        print("Unable to get the Snort.org Block list - Error: {}".format(err))
         exit()
 
 
@@ -247,7 +248,7 @@ def create_update_tag(ip_list):
                                                                          CONFIG_DATA["SW_TENANT_ID"])
 
     data = [{
-        "name": "Talos Blacklist",
+        "name": "Snort Block list",
         "ranges": ip_list,
         "hostBaselines": False,
         "suppressExcludedServices": True,
@@ -295,7 +296,7 @@ def create_update_tag(ip_list):
 
 
 def create_cse():
-    """Create a Custom Security Event for bi-directional traffic to/from a Blacklisted IP"""
+    """Create a Custom Security Event for bi-directional traffic to/from a Block listed IP"""
 
     print("Creating Custom Security Event...")
 
@@ -304,7 +305,7 @@ def create_cse():
                                                                                        CONFIG_DATA["SW_TENANT_ID"])
 
     data = {
-        "name": "CSE: Talos Blacklist",
+        "name": "CSE: Snort Block list",
         "subject": {
             "tags": {
                 "includes": [1]
@@ -444,10 +445,10 @@ def selection_list(item_name, item_name_key, item_dict):
 
 
 def main():
-    """This is a function to run the main logic of the TalosBlacklistImporter"""
+    """This is a function to run the main logic of the SnortBlocklistImporter"""
 
-    # Get the IPs in the Talos Blacklist
-    ip_list = get_blacklist()
+    # Get the IPs in the Snort Block list
+    ip_list = get_block_list()
 
     # Authenticate to the Stealthwatch API
     get_access_token()
@@ -487,7 +488,7 @@ def main():
 if __name__ == "__main__":
 
     # Set up an argument parser
-    parser = argparse.ArgumentParser(description="A script to import the Talos Blacklist into Stealthwatch")
+    parser = argparse.ArgumentParser(description="A script to import the Snort Block list into Stealthwatch")
     parser.add_argument("-d", "--daemon", help="Run the script as a daemon", action="store_true")
     args = parser.parse_args()
 

@@ -1,5 +1,5 @@
 {
-    "TALOS_BLACKLIST_URL": "http://www.talosintel.com/feeds/ip-filter.blf",
+    "SNORT_BLOCK_LIST_URL": "https://snort.org/downloads/ip-block-list",
     "SW_ADDRESS": "",
     "SW_USERNAME": "",
     "SW_PASSWORD": "",
