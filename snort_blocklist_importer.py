@@ -5,7 +5,7 @@
 # ABOUT THIS SCRIPT #
 #####################
 #
-# snort_block_list_importer.py
+# snort_blocklist_importer.py
 # ----------------
 # Author: Alan Nix
 # Contibutions by: Joel Esler
@@ -40,8 +40,8 @@ CONFIG_DATA = {}
 # Set a wait interval (in seconds) - don't make this too short or you'll get greylisted
 INTERVAL = 3600
 
-# Snort Block list Cache
-SNORT_DATA_FILE = "block_list.json"
+# Snort Blocklist Cache
+SNORT_DATA_FILE = "blocklist.json"
 
 ####################
 #    FUNCTIONS     #
@@ -88,45 +88,45 @@ def save_config():
         json.dump(CONFIG_DATA, output_file, indent=4)
 
 
-def get_block_list():
-    """Check to see if we have a cached block_list, fetch a new one if needed, then return the results"""
+def get_blocklist():
+    """Check to see if we have a cached blocklist, fetch a new one if needed, then return the results"""
 
     # Check to see if we have cached data
     if os.path.isfile(SNORT_DATA_FILE):
-        print("Cached block_list found.")
+        print("Cached blocklist found.")
 
         # Get the delta of the current time and the file modified time
         time_delta = time.time() - os.path.getmtime(SNORT_DATA_FILE)
 
         # If the file is less than an hour old, use it
         if time_delta < INTERVAL:
-            print("Cached block_list was less than {} seconds old.  Using it.".format(INTERVAL))
+            print("Cached blocklist was less than {} seconds old.  Using it.".format(INTERVAL))
 
             # Open the CONFIG_FILE and load it
-            with open(SNORT_DATA_FILE, 'r') as block_list_file:
-                ip_list = json.load(block_list_file)
+            with open(SNORT_DATA_FILE, 'r') as blocklist_file:
+                ip_list = json.load(blocklist_file)
 
         else:
-            print("Cached block_list was too old, getting a new one.")
+            print("Cached blocklist was too old, getting a new one.")
 
-            # Get a new block_list
-            ip_list = get_new_block_list()
+            # Get a new blocklist
+            ip_list = get_new_blocklist()
 
     else:
-        print("No cached block_list was found, getting a new one.")
+        print("No cached blocklist was found, getting a new one.")
 
-        # Get a new block_list
-        ip_list = get_new_block_list()
+        # Get a new blocklist
+        ip_list = get_new_blocklist()
 
     return ip_list
 
 
-def get_new_block_list():
-    """Retrieve the Snort Block list and return a list of IPs"""
+def get_new_blocklist():
+    """Retrieve the Snort Blocklist and return a list of IPs"""
 
     try:
-        # Get the IP Block list data from Snort.org 
-        response = requests.get(CONFIG_DATA["SNORT_BLOCK_LIST_URL"], stream=True)
+        # Get the IP Blocklist data from Snort.org 
+        response = requests.get(CONFIG_DATA["SNORT_BLOCKLIST_URL"], stream=True)
 
         # If the request was successful
         if response.status_code >= 200 or response.status_code < 300:
@@ -142,11 +142,11 @@ def get_new_block_list():
 
                 # Make sure we haven't exceeded our requests per minute maximum
                 if "exceeded" in line:
-                    print("It looks like we've exceeded the request maximum for the block_list. Terminating.")
+                    print("It looks like we've exceeded the request maximum for the blocklist. Terminating.")
                     exit()
 
                 if "DOCTYPE" in line:
-                    print("Got garbage back from the Snort.org block_list. Terminating.")
+                    print("Got garbage back from the Snort.org blocklist. Terminating.")
                     exit()
 
                 if line:
@@ -163,7 +163,7 @@ def get_new_block_list():
             exit()
 
     except Exception as err:
-        print("Unable to get the Snort.org Block list - Error: {}".format(err))
+        print("Unable to get the Snort.org Blocklist - Error: {}".format(err))
         exit()
 
 
@@ -248,7 +248,7 @@ def create_update_tag(ip_list):
                                                                          CONFIG_DATA["SW_TENANT_ID"])
 
     data = [{
-        "name": "Snort Block list",
+        "name": "Snort Blocklist",
         "ranges": ip_list,
         "hostBaselines": False,
         "suppressExcludedServices": True,
@@ -296,7 +296,7 @@ def create_update_tag(ip_list):
 
 
 def create_cse():
-    """Create a Custom Security Event for bi-directional traffic to/from a Block listed IP"""
+    """Create a Custom Security Event for bi-directional traffic to/from a Blocklisted IP"""
 
     print("Creating Custom Security Event...")
 
@@ -305,7 +305,7 @@ def create_cse():
                                                                                        CONFIG_DATA["SW_TENANT_ID"])
 
     data = {
-        "name": "CSE: Snort Block list",
+        "name": "CSE: Snort Blocklist",
         "subject": {
             "tags": {
                 "includes": [1]
@@ -447,8 +447,8 @@ def selection_list(item_name, item_name_key, item_dict):
 def main():
     """This is a function to run the main logic of the SnortBlocklistImporter"""
 
-    # Get the IPs in the Snort Block list
-    ip_list = get_block_list()
+    # Get the IPs in the Snort Blocklist
+    ip_list = get_blocklist()
 
     # Authenticate to the Stealthwatch API
     get_access_token()
@@ -488,7 +488,7 @@ def main():
 if __name__ == "__main__":
 
     # Set up an argument parser
-    parser = argparse.ArgumentParser(description="A script to import the Snort Block list into Stealthwatch")
+    parser = argparse.ArgumentParser(description="A script to import the Snort Blocklist into Stealthwatch")
     parser.add_argument("-d", "--daemon", help="Run the script as a daemon", action="store_true")
     args = parser.parse_args()
 

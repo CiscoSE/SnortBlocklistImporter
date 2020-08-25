@@ -1,10 +1,10 @@
-# Stealthwatch Enterprise: Snort Block list Importer
+# Stealthwatch Enterprise: Snort Blocklist Importer
 
-[![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/CiscoSE/SnortBlock_listImporter)
+[![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/CiscoSE/SnortBlocklistImporter)
 
 ## Summary
 
-This is a script to import Snort's Sample IP Block list into a Tag (Host Group) within Stealthwatch Enterprise. This will also optionally create a Custom Security Event (CSE) to alert on traffic to the block listed IPs.
+This is a script to import Snort's Sample IP Blocklist into a Tag (Host Group) within Stealthwatch Enterprise. This will also optionally create a Custom Security Event (CSE) to alert on traffic to the blocklisted IPs.
 
 You can find more information on Stealthwatch's APIs on [Cisco DevNet](https://developer.cisco.com/docs/stealthwatch/).
 
@@ -12,7 +12,7 @@ You can find more information on Stealthwatch's APIs on [Cisco DevNet](https://d
 
 1. Python 3.x
 2. Stealthwatch Enterprise 7.0 or higher
-    - Updates files and documentation can be found in the Network Visibility and Segementation product category on [software.cisco.com](https://software.cisco.com/download/home/286307082)
+    - Update files and documentation can be found in the Network Visibility and Segmentation product category on [software.cisco.com](https://software.cisco.com/download/home/286307082)
 3. Stealthwatch Enterprise user credentials with the "Master Admin" role assigned.
     - User roles are configured in the Stealthwatch web interface.  Simply navigate to *Global Settings -> User Management*.
 
@@ -20,12 +20,12 @@ You can find more information on Stealthwatch's APIs on [Cisco DevNet](https://d
 
 The ***config.json*** file contains the following variables:
 
-- SNORT_BLOCK_LIST_URL: The URL for the Snort IP Block list. (String)
+- SNORT_BLOCKLIST_URL: The URL for the Snort IP Blocklist. (String)
 - SW_ADDRESS: The IP or FQDN of the Stealthwatch SMC. (String)
 - SW_USERNAME: The Username to be used to authenticate to Stealthwatch. (String)
 - SW_PASSWORD: The Password to be used to authenticate to Stealthwatch. (String)
 - SW_TENANT_ID: The Stealthwatch Tenant (Domain) ID to be used. (Integer)
-- SW_TAG_ID: The Tag (Host Group) ID for the block list IPs. (Integer)
+- SW_TAG_ID: The Tag (Host Group) ID for the blocklist IPs. (Integer)
 - SW_CREATE_CSE: Whether a Custom Security Event should be created. (Boolean)
 - SW_CSE_ID: The ID of the Custom Security Event. (Integer)
 
@@ -44,7 +44,7 @@ The ***config.json*** file contains the following variables:
 
 The script will automatically try to determine your Stealthwatch Tenant ID, and store that in the ***config.json*** file as well.
 
-By default, the script will cache downloaded block list data from Snort for one hour to prevent creating too many requests. (You'll get greylisted if you make too many requests for the URL)
+By default, the script will cache downloaded blocklist data from Snort for one hour to prevent creating too many requests. (You'll get greylisted if you make too many requests for the URL)
 
 ## Docker Container
 
@@ -54,8 +54,8 @@ To build the container, run the script once to populate the ***config.json*** fi
 
 Once the ***config.json*** file is populated, run the following command to build the container:
 
-- ```docker build -t snort-block-list-importer .```
+- ```docker build -t snort-blocklist-importer .```
 
 You can then run the container as a daemon with the following command:
 
-- ```docker run -d --name snort-block-list-importer snort-block-list-importer```
+- ```docker run -d --name snort-blocklist-importer snort-blocklist-importer```

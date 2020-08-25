@@ -1,6 +1,6 @@
 __pycache__
 
-blacklist.json
+blocklist.json
 config.json
 
 venv/

@@ -1,5 +1,5 @@
 {
-    "SNORT_BLOCK_LIST_URL": "https://snort.org/downloads/ip-block-list",
+    "SNORT_BLOCKLIST_URL": "https://snort.org/downloads/ip-block-list",
     "SW_ADDRESS": "",
     "SW_USERNAME": "",
     "SW_PASSWORD": "",
