@@ -34,7 +34,8 @@ urllib3.disable_warnings()
 API_SESSION = requests.Session()
 
 # Config Paramters
-CONFIG_FILE = "config.json"
+CONFIG_FILE = os.path.join(os.path.dirname(__file__), 'config.json')
+CONFIG_FILE_EXAMPLE = os.path.join(os.path.dirname(__file__), 'config.example.json')
 CONFIG_DATA = {}
 
 # Set a wait interval (in seconds) - don't make this too short or you'll get greylisted
@@ -70,7 +71,7 @@ def load_config(retry=False):
 
             # Print that we couldn't find the config file, and attempt to copy the example
             print("The configuration file was not found. Copying 'config.example.json' file to '{}', and retrying...".format(CONFIG_FILE))
-            shutil.copyfile('config.example.json', CONFIG_FILE)
+            shutil.copyfile(CONFIG_FILE_EXAMPLE, CONFIG_FILE)
 
             # Try to reload the config
             return load_config(retry=True)
@@ -125,7 +126,7 @@ def get_new_blocklist():
     """Retrieve the Snort Blocklist and return a list of IPs"""
 
     try:
-        # Get the IP Blocklist data from Snort.org 
+        # Get the IP Blocklist data from Snort.org
         response = requests.get(CONFIG_DATA["SNORT_BLOCKLIST_URL"], stream=True)
 
         # If the request was successful
@@ -152,7 +153,7 @@ def get_new_blocklist():
                 if line:
                     ip_list.append(line)
 
-            # Cache the data from Snort.org 
+            # Cache the data from Snort.org
             with open(SNORT_DATA_FILE, 'w') as output_file:
                 json.dump(ip_list, output_file, indent=4)
 
